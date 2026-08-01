@@ -1,3 +1,5 @@
+import 'package:flutter_complete_project/src/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_complete_project/src/features/splash/presentation/screens/splash_screen.dart';
 import 'package:flutter_complete_project/src/imports/core_imports.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,17 +12,17 @@ import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: AppRoutes.onboarding,
-  redirect: (context, state) {
-    if (state.uri.path == '/') return AppRoutes.onboarding;
-    return null;
-  },
+  initialLocation: AppRoutes.splash,
+  // redirect: (context, state) {
+  //   if (state.uri.path == '/') return AppRoutes.onboarding;
+  //   return null;
+  // },
   routes: <RouteBase>[
-    // GoRoute(
-    //   path: AppRoutes.onboarding,
-    //   name: 'onboarding',
-    //   builder: (context, state) => const OnboardingScreen(),
-    // ),
+    GoRoute(
+      path: AppRoutes.splash,
+      name: 'splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     // GoRoute(
     //   path: AppRoutes.login,
     //   name: 'login',
@@ -36,10 +38,10 @@ final GoRouter appRouter = GoRouter(
     //   name: 'forgotPassword',
     //   builder: (context, state) => const ForgotPasswordScreen(),
     // ),
-    // GoRoute(
-    //   path: AppRoutes.home,
-    //   name: 'home',
-    //   builder: (context, state) => const HomePage(),
-    // ),
+    GoRoute(
+      path: AppRoutes.home,
+      name: 'home',
+      builder: (context, state) => const HomeScreen(),
+    ),
   ],
 );
