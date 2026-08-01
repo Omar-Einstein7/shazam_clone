@@ -1,0 +1,106 @@
+name: flutter_complete_project
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Navigation
+  go_router:
+
+  # Networking
+  internet_connection_checker_plus:
+  dio:
+  retrofit:
+  pretty_dio_logger:
+
+  # State Management
+  fpdart:
+  equatable:
+  json_annotation:
+  freezed_annotation:
+  flutter_hooks:
+  flutter_bloc:
+
+  # Backend – Firebase
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
+  firebase_database:
+  firebase_storage:
+  firebase_analytics:
+  firebase_crashlytics:
+
+  # Storage
+  shared_preferences:
+  flutter_secure_storage:
+
+  # Images & SVG
+  cached_network_image:
+  flutter_svg:
+
+  # Icons
+  iconsax_plus:
+
+  # Dependency Injection
+  get_it:
+
+  # Shimmer / Skeleton
+  skeletonizer:
+  shimmer:
+
+  # Responsive UI
+  flutter_screenutil:
+
+  # Animations
+  flutter_animate:
+  smooth_page_indicator:
+
+  # Environment
+  flutter_dotenv:
+
+  # Logging
+  logger:
+
+  # Utilities
+  path_provider:
+  url_launcher:
+  permission_handler:
+  geolocator:
+
+  # Device & System
+  device_info_plus:
+  app_version_update:
+
+  # Localization
+  easy_localization:
+
+  flutter_native_splash:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code Generation
+  build_runner:
+  json_serializable:
+  freezed:
+  retrofit_generator:
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/images/
+    - assets/svgs/
+    - assets/icons/
+    - assets/translations/
+    - .env
