@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730709367532",
+    "project_id": "shazam-app-8e393",
+    "storage_bucket": "shazam-app-8e393.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730709367532:android:bda1d9a722c34c8aaa23c9",
+        "android_client_info": {
+          "package_name": "com.example.flutter_complete_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTaDgYAY1ByrQu9dPwDKBg5XfkQAdshjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

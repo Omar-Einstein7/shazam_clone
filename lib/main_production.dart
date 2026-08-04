@@ -19,7 +19,6 @@ Future<void> main() async {
     statusBarColor: Colors.green,
     systemNavigationBarColor: Colors.amber
   ));
-
   runApp(
     const LocalizationWrapper(
       child: StateWrapper(
