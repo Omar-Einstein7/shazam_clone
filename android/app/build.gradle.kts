@@ -50,7 +50,7 @@ android {
                 type = "string",
                 name = "app_name",
                 value = "shazam dev")
-            applicationIdSuffix = ".dev"
+                applicationIdSuffix = ".dev"
             
         }
         create("production") {
@@ -59,7 +59,6 @@ android {
                 type = "string",
                 name = "app_name",
                 value = "shazam prod")
-            applicationIdSuffix = ".production"
             
         }
     }

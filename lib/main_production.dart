@@ -14,7 +14,7 @@ Future<void> main() async {
   
   await configureDependencies();
 
-  // await AppConfig.init();
+  //  await AppConfig.init();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Colors.green,
     systemNavigationBarColor: Colors.amber

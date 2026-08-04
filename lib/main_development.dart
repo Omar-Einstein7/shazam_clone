@@ -15,10 +15,10 @@ Future<void> main() async {
   await configureDependencies();
 
   // await AppConfig.init();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.pink,
-    systemNavigationBarColor: Colors.pink
-  ));
+  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  //   statusBarColor: Colors.pink,
+  //   systemNavigationBarColor: Colors.pink
+  // ));
   runApp(
     const LocalizationWrapper(
       child: StateWrapper(

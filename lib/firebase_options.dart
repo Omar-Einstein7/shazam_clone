@@ -56,7 +56,6 @@ class DefaultFirebaseOptions {
     projectId: 'shazam-app-8e393',
     storageBucket: 'shazam-app-8e393.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB1BI6ioH9aPX6KhJIT5_yHDKpjWVNGY_I',
     appId: '1:730709367532:ios:d9989c93e1891859aa23c9',
