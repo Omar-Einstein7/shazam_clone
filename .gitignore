@@ -129,3 +129,4 @@ app.*.symbols
 SPLASH_FEATURE.md
 AUTH_FEATURE.md
 HOME_FEATURE.md
+.env
