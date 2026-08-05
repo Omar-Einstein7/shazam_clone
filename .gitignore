@@ -60,6 +60,7 @@ unlinked_spec.ds
 # fastlane secrets & generated files
 **/android/fastlane/service-account-key.json
 **/android/fastlane/report.xml
+**/android/.env
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
