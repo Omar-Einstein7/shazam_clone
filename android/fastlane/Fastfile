@@ -18,8 +18,8 @@ default_platform(:android)
 platform :android do
   desc "Lane for Firebase App Distribution"
   lane :firebase_distribution do
-    # sh "flutter clean"
-    # sh "flutter build apk --flavor Production -t lib/main_production.dart --no-tree-shake-icons"
+    sh "flutter clean"
+    sh "flutter build apk --flavor production -t lib/main_production.dart --no-tree-shake-icons"
     firebase_app_distribution(
     app: "1:730709367532:android:bda1d9a722c34c8aaa23c9",
     firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
