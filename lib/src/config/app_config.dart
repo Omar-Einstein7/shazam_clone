@@ -1,3 +1,5 @@
+import 'package:flutter_complete_project/firebase_options.dart';
+
 import '../imports/core_imports.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,7 +20,9 @@ class AppConfig {
   static String get baseUrl => _getBaseUrl();
 
   static Future<void> init() async {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     dio = Dio(
       BaseOptions(
         baseUrl: _getBaseUrl(),
