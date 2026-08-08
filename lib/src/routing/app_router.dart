@@ -1,4 +1,6 @@
+import 'package:flutter_complete_project/src/features/home/presentation/cubit/shazam_state.dart';
 import 'package:flutter_complete_project/src/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_complete_project/src/features/home/presentation/screens/song_details_screen.dart';
 import 'package:flutter_complete_project/src/features/splash/presentation/screens/splash_screen.dart';
 import 'package:flutter_complete_project/src/imports/core_imports.dart';
 import 'package:go_router/go_router.dart';
@@ -42,6 +44,13 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.home,
       name: 'home',
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.songDetails,
+      name: 'songDetails',
+      builder: (context, state) => SongDetailsScreen(
+        result: state.extra! as ShazamResult,
+      ),
     ),
   ],
 );
