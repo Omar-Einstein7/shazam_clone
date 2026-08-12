@@ -7,6 +7,7 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    
 }
 
 android {
@@ -62,6 +63,9 @@ android {
             
         }
     }
+}
+dependencies {
+    implementation("androidx.appcompat:appcompat:1.4.0")
 }
 
 flutter {

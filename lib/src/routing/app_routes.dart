@@ -13,3 +13,11 @@ abstract final class AppRoutes {
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
 }
+
+/// Shared Hero tags so the splash orb can morph into the same-shaped buttons.
+abstract final class AppHeroes {
+  AppHeroes._();
+
+  /// The white neumorphic disc on Splash → the listening button on Home.
+  static const String listenerOrb = 'listenerOrb';
+}

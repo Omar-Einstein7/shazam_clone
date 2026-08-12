@@ -9,10 +9,11 @@ import 'package:flutter_complete_project/src/imports/packages_imports.dart';
 class NeumorphicRippleButton extends StatefulWidget {
   const NeumorphicRippleButton({
     super.key,
-    this.diameter = 120,
+    this.diameter = 160,
     this.assetPath = 'assets/icons/shazam-svgrepo-com.svg',
-    this.assetSize = 56,
+    this.assetSize = 76,
     this.rippling = false,
+    this.heroTag,
     this.onTap,
   });
 
@@ -25,6 +26,10 @@ class NeumorphicRippleButton extends StatefulWidget {
 
   /// When true, continuously emits the three splash waves.
   final bool rippling;
+
+  /// When set, wraps the raised disc in a [Hero] so it can morph from the
+  /// splash screen (e.g. [AppHeroes.listenerOrb]).
+  final String? heroTag;
 
   final VoidCallback? onTap;
 
@@ -48,24 +53,12 @@ class _NeumorphicRippleButtonState extends State<NeumorphicRippleButton>
       blurRadius: 20,
       offset: Offset(-12, -12),
     ),
-    BoxShadow(
-      color: Color(0x661000E0),
-      blurRadius: 20,
-      offset: Offset(12, 12),
-    ),
+    BoxShadow(color: Color(0x661000E0), blurRadius: 20, offset: Offset(12, 12)),
   ];
 
   static const List<BoxShadow> _pressedShadows = [
-    BoxShadow(
-      color: Color(0x66FFFFFF),
-      blurRadius: 6,
-      offset: Offset(-4, -4),
-    ),
-    BoxShadow(
-      color: Color(0x661000E0),
-      blurRadius: 6,
-      offset: Offset(4, 4),
-    ),
+    BoxShadow(color: Color(0x66FFFFFF), blurRadius: 6, offset: Offset(-4, -4)),
+    BoxShadow(color: Color(0x661000E0), blurRadius: 6, offset: Offset(4, 4)),
   ];
 
   @override
@@ -152,6 +145,27 @@ class _NeumorphicRippleButtonState extends State<NeumorphicRippleButton>
           AnimatedBuilder(
             animation: _pressController,
             builder: (context, _) {
+              final disc = Container(
+                width: widget.diameter,
+                height: widget.diameter,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF006AFF),
+                  boxShadow: _pressController.isAnimating
+                      ? _pressedShadows
+                      : _restShadows,
+                ),
+                child: SvgPicture.asset(
+                  widget.assetPath,
+                  width: widget.assetSize,
+                  height: widget.assetSize,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              );
+
               return Transform.scale(
                 scale: _pressScale.value,
                 child: Semantics(
@@ -163,26 +177,13 @@ class _NeumorphicRippleButtonState extends State<NeumorphicRippleButton>
                     onTapCancel: () => _pressController.reverse(),
                     onTapUp: (_) => _pressController.reverse(),
                     onTap: _handleTap,
-                    child: Container(
-                      width: widget.diameter,
-                      height: widget.diameter,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFF006AFF),
-                        boxShadow: _pressController.isAnimating
-                            ? _pressedShadows
-                            : _restShadows,
-                      ),
-                      child: SvgPicture.asset(
-                        widget.assetPath,
-                        width: widget.assetSize,
-                        height: widget.assetSize,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+                    child: widget.heroTag == null
+                        ? disc
+                        : Hero(
+                            tag: widget.heroTag!,
+                            flightShuttleBuilder: _crossFadeShuttle,
+                            child: disc,
+                          ),
                   ),
                 ),
               );
@@ -190,6 +191,33 @@ class _NeumorphicRippleButtonState extends State<NeumorphicRippleButton>
           ),
         ],
       ),
+    );
+  }
+
+  /// Cross-fades the splash orb (white disc, blue logo) into this button
+  /// (blue disc, white logo) as both share the same size and center.
+  Widget _crossFadeShuttle(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection direction,
+    BuildContext fromContext,
+    BuildContext toContext,
+  ) {
+    final fromHero = fromContext.widget as Hero;
+    final toHero = toContext.widget as Hero;
+
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) {
+        return Stack(
+          fit: StackFit.expand,
+          alignment: Alignment.center,
+          children: [
+            fromHero.child,
+            Opacity(opacity: animation.value, child: toHero.child),
+          ],
+        );
+      },
     );
   }
 }

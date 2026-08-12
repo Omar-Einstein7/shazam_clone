@@ -24,13 +24,13 @@ Future<void> main() async {
   await configureDependencies();
 
   // await AppConfig.init();
-  final config = FlavorConfig.current;
-  if (config.isProduction) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.green,
-      systemNavigationBarColor: Colors.amber,
-    ));
-  }
+  // final config = FlavorConfig.current;
+  // if (config.isProduction) {
+  //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  //     statusBarColor: Colors.green,
+  //     systemNavigationBarColor: Colors.amber,
+  //   ));
+  // }
 
   runApp(
     const LocalizationWrapper(

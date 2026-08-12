@@ -20,11 +20,7 @@ class HomeScreen extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF008EFF),
-                Color(0xFF006AFF),
-                Color(0xFF004EFF),
-              ],
+              colors: [Color(0xFF008EFF), Color(0xFF006AFF), Color(0xFF004EFF)],
             ),
           ),
           child: BlocConsumer<ShazamCubit, ShazamState>(
@@ -43,6 +39,7 @@ class HomeScreen extends StatelessWidget {
 
               return Center(
                 child: NeumorphicRippleButton(
+                  heroTag: AppHeroes.listenerOrb,
                   rippling: isListening,
                   onTap: () => context.read<ShazamCubit>().startListening(),
                 ),
@@ -67,9 +64,7 @@ class HomeScreen extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         backgroundColor: const Color(0xFF0B3B7A),
         icon: const Icon(
           Icons.error_outline_rounded,

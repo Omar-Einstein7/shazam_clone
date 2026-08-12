@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter_complete_project/src/features/splash/presentation/widgets/shazam_logo_painter.dart';
 import 'package:flutter_complete_project/src/imports/core_imports.dart';
 import 'package:go_router/go_router.dart';
@@ -91,11 +89,17 @@ class _SplashScreenState extends State<SplashScreen>
     // 3) After drawing completes, start a gentle pulse.
     _pulseController.repeat(reverse: true);
 
-    // 4) Let the logo settle, then do one final fade-out.
+    // 4) Let the logo settle, then hand over to Home. The splash circle is
+    //    visually identical to the Home neumorphic button, so the 450ms
+    //    cross-fade below reads as "nothing happened".
     await Future.delayed(const Duration(milliseconds: 650));
     if (!mounted) return;
 
-    await _fadeController.reverse();
+    // Settle the pulse back to scale 1.0 so it matches Home's resting button.
+    _pulseController
+      ..stop()
+      ..value = 0;
+
     if (!mounted) return;
     context.go(AppRoutes.home);
   }
@@ -110,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final logoSize = MediaQuery.sizeOf(context).width * 0.45;
+    final logoSize = 160.0;
 
     return Scaffold(
       body: Stack(
@@ -146,55 +150,43 @@ class _SplashScreenState extends State<SplashScreen>
                       : 1.0;
                   return Transform.scale(
                     scale: scale,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // ── Glassy circular avatar behind the logo strokes ──
-                        ClipOval(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                            child: Container(
-                              width: logoSize,
-                              height: logoSize,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.white.withValues(alpha: 0.25),
-                                    Colors.white.withValues(alpha: 0.08),
-                                  ],
+                    child: Hero(
+                      tag: AppHeroes.listenerOrb,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // ── Neumorphic circular surface (same look as the
+                          //    Home button so the morph is seamless) ──
+                          Container(
+                            width: logoSize,
+                            height: logoSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF006AFF),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x66FFFFFF),
+                                  blurRadius: 20,
+                                  offset: Offset(-12, -12),
                                 ),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.35),
-                                  width: 1.5,
+                                BoxShadow(
+                                  color: Color(0x661000E0),
+                                  blurRadius: 20,
+                                  offset: Offset(12, 12),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.20),
-                                    blurRadius: 24,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                  BoxShadow(
-                                    color: Colors.white.withValues(alpha: 0.45),
-                                    blurRadius: 8,
-                                    spreadRadius: -4,
-                                  ),
-                                ],
-                              ),
+                              ],
                             ),
                           ),
-                        ),
-                        CustomPaint(
-                          size: Size(logoSize * 0.72, logoSize * 0.72),
-                          painter: ShazamLogoPainter(
-                            progress: _drawAnimation.value,
-                            color: Colors.white,
-                            enableGlow: true,
+                          CustomPaint(
+                            size: Size(logoSize * 0.55, logoSize * 0.55),
+                            painter: ShazamLogoPainter(
+                              progress: _drawAnimation.value,
+                              color: Colors.white,
+                              enableGlow: false,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
