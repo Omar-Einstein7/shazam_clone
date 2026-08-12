@@ -33,7 +33,7 @@ jobs:
 
     # - name: Build release APK
     #   working-directory: .
-    #   run: flutter build apk --flavor Production -t lib/main_production.dart --no-tree-shake-icons
+    #   run: flutter build apk --flavor production --dart-define=APP_FLAVOR=production -t lib/main.dart --no-tree-shake-icons
 
     - name: Distribute to Firebase
       env:

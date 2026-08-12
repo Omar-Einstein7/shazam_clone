@@ -65,6 +65,9 @@ dependencies:
   # Environment
   flutter_dotenv:
 
+  # Cryptography (ACRCloud request signing)
+  crypto:
+
   # Logging
   logger:
 
@@ -82,6 +85,9 @@ dependencies:
   easy_localization:
 
   flutter_native_splash:
+
+  # Audio recording (device microphone) for the Song Recognition feature
+  record: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -104,3 +110,4 @@ flutter:
     - assets/icons/
     - assets/translations/
     - .env
+    - shorebird.yaml
