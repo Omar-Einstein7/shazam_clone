@@ -19,13 +19,16 @@ class _SplashScreenState extends State<SplashScreen>
   /// Controls a subtle pulse/glow after the logo finishes drawing.
   late final AnimationController _pulseController;
 
+  /// Controls the single fade-out at the end of the splash transition.
+  late final AnimationController _fadeController;
+
   /// Curved animation for the stroke-drawing progress.
   late final Animation<double> _drawAnimation;
 
   /// Curved animation for the pulse scale effect.
   late final Animation<double> _pulseAnimation;
 
-  /// Fade-in for the entire logo container.
+  /// Fade-out for the entire logo container.
   late final Animation<double> _fadeAnimation;
 
   @override
@@ -37,15 +40,11 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
+    _drawController.value = 1.0;
 
     _drawAnimation = CurvedAnimation(
       parent: _drawController,
       curve: AppCurves.emphasized,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _drawController,
-      curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
     );
 
     // ── Pulse animation: subtle breathe after drawing completes ──
@@ -55,32 +54,48 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.06).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Start the drawing, then pulse, then navigate
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+      value: 1.0,
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+
+    // Start full, erase the logo, redraw it, then pulse and navigate.
     _startAnimationSequence();
   }
 
   Future<void> _startAnimationSequence() async {
     // Small delay so the gradient background renders first
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 650));
+    if (!mounted) return;
 
-    // 1) Draw the logo
-    _drawController.forward();
+    // 1) Reverse the drawing so the static logo disappears along its path.
+    await _drawController.reverse();
+    if (!mounted) return;
 
-    // 2) After drawing completes, start a gentle pulse
-    _drawController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _pulseController.repeat(reverse: true);
-      }
-    });
+    await Future.delayed(const Duration(milliseconds: 120));
+    if (!mounted) return;
 
-    // 3) Navigate away after total splash duration
-    await Future.delayed(const Duration(milliseconds: 3200));
+    // 2) Redraw the logo using the original creation transition.
+    await _drawController.forward();
+    if (!mounted) return;
+
+    // 3) After drawing completes, start a gentle pulse.
+    _pulseController.repeat(reverse: true);
+
+    // 4) Let the logo settle, then do one final fade-out.
+    await Future.delayed(const Duration(milliseconds: 650));
+    if (!mounted) return;
+
+    await _fadeController.reverse();
     if (!mounted) return;
     context.go(AppRoutes.home);
   }
@@ -89,6 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _drawController.dispose();
     _pulseController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -125,8 +141,9 @@ class _SplashScreenState extends State<SplashScreen>
                   _pulseController,
                 ]),
                 builder: (context, child) {
-                  final scale =
-                      _pulseController.isAnimating ? _pulseAnimation.value : 1.0;
+                  final scale = _pulseController.isAnimating
+                      ? _pulseAnimation.value
+                      : 1.0;
                   return Transform.scale(
                     scale: scale,
                     child: Stack(
@@ -170,13 +187,11 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                         CustomPaint(
-                          size: Size(logoSize, logoSize),
+                          size: Size(logoSize * 0.72, logoSize * 0.72),
                           painter: ShazamLogoPainter(
                             progress: _drawAnimation.value,
                             color: Colors.white,
                             enableGlow: true,
-                            // showCircle: true,
-                            // circleRadiusFactor: 0.42,
                           ),
                         ),
                       ],

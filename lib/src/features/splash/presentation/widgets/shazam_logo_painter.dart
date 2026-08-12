@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// A [CustomPainter] that draws the exact Shazam logo from SVG.
+/// A [CustomPainter] that draws the Shazam mark as animated rounded strokes.
 class ShazamLogoPainter extends CustomPainter {
   /// Drawing progress from 0.0 (nothing drawn) to 1.0 (fully drawn).
   final double progress;
@@ -13,18 +13,10 @@ class ShazamLogoPainter extends CustomPainter {
   /// Whether to draw a soft glow behind the strokes.
   final bool enableGlow;
 
-  /// Vertical shift of the top half downward (in the original 192px grid).
-  final double upperOffsetY;
-
-  /// Horizontal shift of the top half to the right (in the original 192px grid).
-  final double upperOffsetX;
-
   ShazamLogoPainter({
     required this.progress,
     this.color = Colors.white,
     this.enableGlow = true,
-    this.upperOffsetY = 25.0, // move the top half downward
-    this.upperOffsetX = 30.0, // move the top half slightly right
   });
 
   @override
@@ -32,54 +24,44 @@ class ShazamLogoPainter extends CustomPainter {
     if (progress <= 0 || size.isEmpty) return;
 
     final clampedProgress = progress.clamp(0.0, 1.0);
-
-    // Build the curves on the original (192x192) grid, applying the offset.
-    final upper = _buildUpperCurve().shift(
-      Offset(upperOffsetX, upperOffsetY),
-    );
+    final upper = _buildUpperCurve();
     final lower = _buildLowerCurve();
 
-    // Drawing bounds on the grid + margin for stroke width and glow (grid units).
-    const gridMargin = 26.0;
-    final gridBounds = _computeBounds([upper, lower]);
-    final gridW = gridBounds.width + (gridMargin * 2);
-    final gridH = gridBounds.height + (gridMargin * 2);
-
-    // Largest fit-without-crop scale that preserves shape at any aspect ratio.
-    final scale = math.min(size.width / gridW, size.height / gridH);
+    final gridBounds = _computeBounds([upper, lower]).inflate(9);
+    final scale = math.min(
+      size.width / gridBounds.width,
+      size.height / gridBounds.height,
+    );
     if (scale <= 0) return;
 
-    final tx = (size.width - gridW * scale) / 2 -
-        (gridBounds.left - gridMargin) * scale;
-    final ty = (size.height - gridH * scale) / 2 -
-        (gridBounds.top - gridMargin) * scale;
+    final tx =
+        (size.width - gridBounds.width * scale) / 2 - gridBounds.left * scale;
+    final ty =
+        (size.height - gridBounds.height * scale) / 2 - gridBounds.top * scale;
 
-    // Scale first, then translate to center the drawing.
     final matrix = Matrix4.identity()
       ..translateByDouble(tx, ty, 0, 1)
       ..scaleByDouble(scale, scale, 1, 1);
     final upperCurve = upper.transform(matrix.storage);
     final lowerCurve = lower.transform(matrix.storage);
 
-    // ── Glow layer (drawn first, behind the main strokes) ──
-    if (enableGlow && clampedProgress > 0) {
+    if (enableGlow) {
       final glowPaint = Paint()
-        ..color = color.withValues(alpha: 0.25)
+        ..color = color.withValues(alpha: 0.28)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 14 * scale
+        ..strokeWidth = 26 * scale
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 10 * scale);
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8 * scale);
 
       _drawAnimatedPath(canvas, upperCurve, glowPaint, clampedProgress);
       _drawAnimatedPath(canvas, lowerCurve, glowPaint, clampedProgress);
     }
 
-    // ── Main strokes / Paths ──
     final mainPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 20 * scale
+      ..strokeWidth = 26 * scale
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
@@ -87,24 +69,24 @@ class ShazamLogoPainter extends CustomPainter {
     _drawAnimatedPath(canvas, lowerCurve, mainPaint, clampedProgress);
   }
 
-  /// Upper/left half taken from the SVG.
+  /// Centerline of the upper-left chain, matching the 192x192 SVG reference.
   Path _buildUpperCurve() {
     return Path()
-      ..moveTo(98.356, 91.134)
-      ..lineTo(89.163, 100.327)
-      ..cubicTo(74.713, 114.777, 51.287, 114.777, 36.837, 100.327)
-      ..cubicTo(22.387, 85.877, 22.387, 62.451, 36.837, 48.001)
-      ..lineTo(68.657, 16.181);
+      ..moveTo(77.225, 23.0)
+      ..lineTo(45.405, 54.82)
+      ..cubicTo(28.612, 71.613, 28.612, 98.826, 45.405, 115.619)
+      ..cubicTo(62.198, 132.412, 89.411, 132.412, 106.204, 115.619)
+      ..lineTo(115.396, 106.427);
   }
 
-  /// Lower/right half taken from the SVG.
+  /// Centerline of the lower-right chain, matching the 192x192 SVG reference.
   Path _buildLowerCurve() {
     return Path()
-      ..moveTo(93.644, 100.866)
-      ..lineTo(102.836, 91.673)
-      ..cubicTo(117.286, 77.224, 140.713, 77.224, 155.162, 91.673)
-      ..cubicTo(169.612, 106.123, 169.612, 129.549, 155.162, 143.999)
-      ..lineTo(123.342, 175.819);
+      ..moveTo(76.604, 85.225)
+      ..lineTo(85.796, 76.033)
+      ..cubicTo(102.589, 59.24, 129.803, 59.24, 146.595, 76.033)
+      ..cubicTo(163.388, 92.826, 163.388, 120.04, 146.595, 136.832)
+      ..lineTo(114.775, 168.652);
   }
 
   /// Draws a partial [path] based on [progress] using [PathMetrics].
@@ -128,8 +110,9 @@ class ShazamLogoPainter extends CustomPainter {
     for (final path in paths) {
       for (final metric in path.computeMetrics()) {
         for (var i = 0; i <= 64; i++) {
-          final position =
-              metric.getTangentForOffset(metric.length * i / 64)?.position;
+          final position = metric
+              .getTangentForOffset(metric.length * i / 64)
+              ?.position;
           if (position == null) continue;
           bounds = bounds == null
               ? Rect.fromPoints(position, position)
@@ -144,7 +127,5 @@ class ShazamLogoPainter extends CustomPainter {
   bool shouldRepaint(ShazamLogoPainter oldDelegate) =>
       oldDelegate.progress != progress ||
       oldDelegate.color != color ||
-      oldDelegate.enableGlow != enableGlow ||
-      oldDelegate.upperOffsetY != upperOffsetY ||
-      oldDelegate.upperOffsetX != upperOffsetX;
+      oldDelegate.enableGlow != enableGlow;
 }
