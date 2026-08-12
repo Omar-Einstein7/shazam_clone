@@ -1,77 +1,105 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_complete_project/src/features/home/data/datasources/audio_local_data_source.dart';
+import 'package:flutter_complete_project/src/features/home/domain/entities/song.dart';
+import 'package:flutter_complete_project/src/features/home/domain/usecases/recognize_song.dart';
 import 'package:flutter_complete_project/src/features/home/presentation/cubit/shazam_state.dart';
+import 'package:flutter_complete_project/src/utils/utils.dart';
 
 /// Orchestrates the Shazam-style listening flow.
 ///
-/// - [startListening]: transitions to [ShazamListening] and keeps the ripples
-///   running for the whole [listenDuration] window before emitting a result.
-/// - [onRecognized]: performs the mock recognition and emits [ShazamSuccess]
-///   or [ShazamError]. Override in tests.
-/// - [reset]: returns to the idle state so the user can tap again.
+/// - [startListening] requests microphone permission, records audio and keeps
+///   the ripples running for the whole [listenDuration] window before emitting
+///   a result.
+/// - [onRecognized] runs the recognition (through [RecognizeSong]) and emits
+///   [ShazamSuccess] (with the saved audio path) or [ShazamError].
+/// - [resetListening] returns to the idle state so the user can tap again.
 class ShazamCubit extends Cubit<ShazamState> {
   ShazamCubit({
-    this.listenDuration = const Duration(seconds: 10),
-    Future<ShazamResult> Function()? recognition,
-  })  : _recognition =
-            recognition ?? _defaultRecognition,
+    this.listenDuration = const Duration(seconds: 12),
+    RecognizeSong? recognizeSong,
+    AudioLocalDataSource? audioDataSource,
+  })  : _recognizeSong = recognizeSong,
+        _audioDataSource = audioDataSource ?? AudioLocalDataSource.instance,
         super(const ShazamIdle());
 
-  /// How long the ripple waves keep running after a tap.
+  /// How long the ripple waves keep running after a tap (matches the
+  /// recording window).
   final Duration listenDuration;
 
-  final Future<ShazamResult> Function() _recognition;
+  /// Optional recognizer. When null, a mock result is emitted so the UI can be
+  /// tested without a configured AudD token.
+  final RecognizeSong? _recognizeSong;
 
-  Timer? _timer;
+  final AudioLocalDataSource _audioDataSource;
 
   bool get isRippling => state is ShazamListening;
 
-  /// Starts the ripple window and, once it ends, runs the recognition.
-  void startListening() {
+  /// Starts a recording session and, once the window ends, recognizes.
+  Future<void> startListening() async {
     if (state is ShazamListening) return;
-    _timer?.cancel();
 
     emit(const ShazamListening());
 
-    _timer = Timer(listenDuration, () => onRecognized());
+    final result = await _audioDataSource.record(duration: listenDuration);
+    if (isClosed) return;
+
+    result.fold(
+      (failure) {
+        AppLogger.error('Recording failed: ${failure.message}');
+        emit(ShazamError(failure.message));
+      },
+      (audioPath) {
+        AppLogger.info('Recording saved at: $audioPath');
+        onRecognized(audioPath: audioPath);
+      },
+    );
   }
 
-  /// Runs [recognition] and emits success (with result) or error.
-  Future<void> onRecognized() async {
+  /// Runs the recognition and emits success (with saved audio path) or error.
+  Future<void> onRecognized({String? audioPath}) async {
+    final recognizeSong = _recognizeSong;
     try {
-      final result = await _recognition();
+      final ShazamResult result;
+      if (recognizeSong == null) {
+        result = const ShazamResult(
+          title: 'Mocked Song',
+          artist: 'Demo Artist',
+        );
+      } else {
+        final Song song = await recognizeSong(audioPath ?? '');
+        result = ShazamResult(
+          title: song.title,
+          artist: song.artist,
+          album: song.album,
+          releaseDate: song.releaseDate,
+          coverUrl: song.coverUrl,
+          label: song.label,
+          genres: song.genres,
+          duration: song.duration,
+          confidence: song.confidence,
+          isrc: song.isrc,
+          trackUrl: song.trackUrl,
+          source: song.source,
+        );
+      }
       if (isClosed) return;
-      emit(ShazamSuccess(result));
-    } catch (_) {
+      emit(ShazamSuccess(result.copyWith(audioPath: audioPath)));
+    } catch (error) {
       if (isClosed) return;
+      AppLogger.error('Recognition failed: $error');
       emit(
-        const ShazamError(
-          'No song could be recognized. Please try again.',
+        ShazamError(
+          error is Failure
+              ? error.message
+              : 'No song could be recognized. Please try again.',
         ),
       );
     }
   }
 
-  /// Simulated recognition: honors [mockSucceeds] for a demo success.
-  static Future<ShazamResult> _defaultRecognition() async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    return ShazamResult(
-      title: kIsWeb ? 'URL' : 'Mocked Song',
-      artist: 'Demo Artist',
-    );
-  }
-
+  /// Returns to the idle state so the user can tap again.
   void resetListening() {
-    _timer?.cancel();
     if (isClosed) return;
     emit(const ShazamIdle());
-  }
-
-  @override
-  Future<void> close() {
-    _timer?.cancel();
-    return super.close();
   }
 }
